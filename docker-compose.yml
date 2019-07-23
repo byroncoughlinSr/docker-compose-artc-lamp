@@ -4,7 +4,10 @@ services:
   webserver:
     build: 
       context: ./bin/webserver
-    container_name: 'png-webserver'
+    container_name: 'artc-webserver'
+    networks:
+      artc_network:
+       ipv4_address: 172.28.1.4
     restart: 'always'
     ports:
       - "80:80"
@@ -18,7 +21,10 @@ services:
       - ${LOG_DIR-./logs/apache2}:/var/log/apache2
   mysql:
     build: ./bin/mysql
-    container_name: 'png-mysql'
+    container_name: 'artc-mysql'
+    networks:
+     artc_network:
+       ipv4_address: 172.28.1.5
     restart: 'always'
     ports:
       - "3306:3306"
@@ -27,12 +33,15 @@ services:
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
     environment:
       MYSQL_ROOT_PASSWORD: tiger
-      MYSQL_DATABASE: png
-      MYSQL_USER: png
-      MYSQL_PASSWORD: png
+      MYSQL_DATABASE: dbArtc
+      MYSQL_USER: artc
+      MYSQL_PASSWORD: artc
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: 'png-phpmyadmin'
+    container_name: 'artc-phpmyadmin'
+    networks:
+     artc_network:       
+      ipv4_address: 172.28.1.2
     links:
       - mysql
     environment:
@@ -43,7 +52,16 @@ services:
     volumes: 
       - /sessions
   redis:
-    container_name: 'png-redis'
+    container_name: 'artc-redis'
     image: redis:latest
+    networks:
+     artc_network:
+      ipv4_address: 172.28.1.3
     ports:
       - "6379:6379"
+networks:
+  artc_network:
+   ipam:
+    config:
+     - subnet: 172.28.1.1/24
+
